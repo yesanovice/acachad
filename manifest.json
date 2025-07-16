@@ -1,0 +1,21 @@
+{
+  "name": "Academic Progress Tracker",
+  "short_name": "StudyTracker",
+  "description": "Track your academic progress by subjects, chapters, and lessons",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#4a6fa5",
+  "background_color": "#f5f7fa",
+  "icons": [
+    {
+      "src": "icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
