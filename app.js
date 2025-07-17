@@ -571,44 +571,50 @@ const render = {
     // Goals Tab
     updateGoalSubjectDropdown: () => {
         // Clear existing options except the first one
-        while (window.elements.goalSubjectSelect.options.length > 1) {
-            window.elements.goalSubjectSelect.remove(1);
+        if (window.elements.goalSubjectSelect) {
+            while (window.elements.goalSubjectSelect.options.length > 1) {
+                window.elements.goalSubjectSelect.remove(1);
+            }
+
+            // Add subjects to dropdown
+            state.subjects.forEach(subject => {
+                const option = document.createElement('option');
+                option.value = subject.id;
+                option.textContent = subject.name;
+                window.elements.goalSubjectSelect.appendChild(option);
+            });
+
+            // Enable/disable chapter dropdown based on subject selection
+            window.elements.goalSubjectSelect.addEventListener('change', () => {
+                if (!window.elements.goalChapterSelect || !window.elements.goalLessonSelect) return;
+                window.elements.goalChapterSelect.disabled = !window.elements.goalSubjectSelect.value;
+                window.elements.goalLessonSelect.disabled = true;
+                window.elements.goalLessonSelect.innerHTML = '<option value="">Select Lesson</option>';
+                
+                if (window.elements.goalSubjectSelect.value) {
+                    render.updateGoalChapterDropdown(window.elements.goalSubjectSelect.value);
+                } else {
+                    window.elements.goalChapterSelect.innerHTML = '<option value="">Select Chapter</option>';
+                }
+            });
         }
 
-        // Add subjects to dropdown
-        state.subjects.forEach(subject => {
-            const option = document.createElement('option');
-            option.value = subject.id;
-            option.textContent = subject.name;
-            window.elements.goalSubjectSelect.appendChild(option);
-        });
-
-        // Enable/disable chapter dropdown based on subject selection
-        window.elements.goalSubjectSelect.addEventListener('change', () => {
-            window.elements.goalChapterSelect.disabled = !window.elements.goalSubjectSelect.value;
-            window.elements.goalLessonSelect.disabled = true;
-            window.elements.goalLessonSelect.innerHTML = '<option value="">Select Lesson</option>';
-            
-            if (window.elements.goalSubjectSelect.value) {
-                render.updateGoalChapterDropdown(window.elements.goalSubjectSelect.value);
-            } else {
-                window.elements.goalChapterSelect.innerHTML = '<option value="">Select Chapter</option>';
-            }
-        });
-
         // Enable/disable lesson dropdown based on chapter selection
-        window.elements.goalChapterSelect.addEventListener('change', () => {
-            window.elements.goalLessonSelect.disabled = !window.elements.goalChapterSelect.value;
-            
-            if (window.elements.goalChapterSelect.value) {
-                render.updateGoalLessonDropdown(
-                    window.elements.goalSubjectSelect.value, 
-                    window.elements.goalChapterSelect.value
-                );
-            } else {
-                window.elements.goalLessonSelect.innerHTML = '<option value="">Select Lesson</option>';
-            }
-        });
+        if (window.elements.goalChapterSelect) {
+            window.elements.goalChapterSelect.addEventListener('change', () => {
+                if (!window.elements.goalLessonSelect || !window.elements.goalSubjectSelect) return;
+                window.elements.goalLessonSelect.disabled = !window.elements.goalChapterSelect.value;
+                
+                if (window.elements.goalChapterSelect.value) {
+                    render.updateGoalLessonDropdown(
+                        window.elements.goalSubjectSelect.value, 
+                        window.elements.goalChapterSelect.value
+                    );
+                } else {
+                    window.elements.goalLessonSelect.innerHTML = '<option value="">Select Lesson</option>';
+                }
+            });
+        }
     },
 
     updateGoalChapterDropdown: (subjectId) => {
