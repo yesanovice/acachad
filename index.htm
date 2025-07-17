@@ -2,16 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Academic Progress Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+    <meta name="theme-color" content="#4a90e2">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <title>Academic Progress Tracker</title>
 </head>
 <body>
     <header>
         <div class="container">
-            <h1>Academic Progress Tracker</h1>
-            <p>Organize your studies and track your learning journey</p>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1>Academic Progress Tracker</h1>
+                    <p>Organize your studies and track your learning journey</p>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+                    <button id="theme-toggle" class="btn btn-outline btn-sm" title="Toggle Theme">🌙</button>
+                    <div id="streak-badge" style="margin-top: 6px; font-size: 1rem; color: var(--accent-color); font-weight: 600;"></div>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -20,6 +34,9 @@
             <div class="nav-tab active" data-tab="subjects">Subjects</div>
             <div class="nav-tab" data-tab="progress">Progress</div>
             <div class="nav-tab" data-tab="goals">Goals</div>
+            <div class="nav-tab" data-tab="goal-progress">Goal Progress</div>
+            <div class="nav-tab" data-tab="calendar">Calendar</div>
+            <div class="nav-tab" data-tab="preparations">Preparations</div>
         </div>
 
         <!-- Subjects Tab -->
@@ -84,6 +101,19 @@
 
         <!-- Goals Tab -->
         <div class="tab-content" id="goals">
+            <div style="margin-bottom: 18px;">
+                <input type="text" id="goal-search" class="form-control" placeholder="Search goals...">
+            </div>
+            <div class="progress-container" id="goals-progress-container">
+                <h2>Goals Progress</h2>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="goals-progress-bar"></div>
+                </div>
+                <div class="progress-text">
+                    <span id="goals-progress-text">0% Complete</span>
+                    <span id="goals-progress-stats">0/0 completions</span>
+                </div>
+            </div>
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">Set New Goal</div>
@@ -100,24 +130,20 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="goal-chapter" class="form-label">Chapter (optional)</label>
-                        <select id="goal-chapter" class="select-control" disabled>
-                            <option value="">Select Chapter</option>
-                        </select>
+                        <label for="goal-quantity" class="form-label">Quantity</label>
+                        <input type="number" id="goal-quantity" class="form-control" min="1" value="1" placeholder="e.g. 10">
                     </div>
                     <div class="form-group">
-                        <label for="goal-lesson" class="form-label">Lesson (optional)</label>
-                        <select id="goal-lesson" class="select-control" disabled>
-                            <option value="">Select Lesson</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="goal-start-date" class="form-label">Start Date</label>
+                        <label for="goal-start-date" class="form-label">Start Date (optional)</label>
                         <input type="date" id="goal-start-date" class="form-control date-picker">
                     </div>
                     <div class="form-group">
-                        <label for="goal-end-date" class="form-label">End Date</label>
+                        <label for="goal-end-date" class="form-label">End Date (optional)</label>
                         <input type="date" id="goal-end-date" class="form-control date-picker">
+                    </div>
+                    <div class="form-group">
+                        <label for="goal-notes" class="form-label">Notes (optional)</label>
+                        <textarea id="goal-notes" class="notes-editor" placeholder="Add notes for this goal..."></textarea>
                     </div>
                     <button id="add-goal-btn" class="btn">Set Goal</button>
                 </div>
@@ -138,28 +164,112 @@
                 </div>
             </div>
         </div>
+
+        <!-- Goal Progress Tab -->
+        <div class="tab-content" id="goal-progress">
+            <div style="margin-bottom: 18px;">
+                <input type="text" id="goal-progress-search" class="form-control" placeholder="Search goals in progress...">
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Detailed Goal Progress</div>
+                </div>
+                <div class="card-body" id="detailed-goal-progress-list">
+                    <!-- Detailed progress will be rendered here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar Tab -->
+        <div class="tab-content" id="calendar">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Calendar View</div>
+                </div>
+                <div class="card-body">
+                    <div id="calendar-view"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preparations Tab -->
+        <div class="tab-content" id="preparations">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Create Preparation</div>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="prep-subject" class="form-label">Subject</label>
+                        <select id="prep-subject" class="select-control">
+                            <option value="">Select Subject</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="prep-title" class="form-label">Preparation Title</label>
+                        <input type="text" id="prep-title" class="form-control" placeholder="e.g. English Essay Practice">
+                    </div>
+                    <button id="add-prep-btn" class="btn">Create Preparation</button>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Your Preparations</div>
+                </div>
+                <div class="card-body" id="preps-list">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📝</div>
+                        <div class="empty-state-text">No preparations yet</div>
+                        <p>Create a preparation above to get started</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preparation Modal -->
+        <div class="modal" id="prep-modal" aria-modal="true" role="dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title" id="prep-modal-title">Preparation</div>
+                    <button class="modal-close" aria-label="Close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="prep-note-title" class="form-label">Title</label>
+                        <input type="text" id="prep-note-title" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="prep-note-editor" class="form-label">Notes</label>
+                        <textarea id="prep-note-editor" class="notes-editor" style="min-height:220px;" placeholder="Write your preparation notes here..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" id="cancel-prep-edit">Cancel</button>
+                    <button class="btn" id="save-prep-btn">Save</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Subject Modal -->
-    <div class="modal" id="subject-modal">
+    <div class="modal" id="subject-modal" aria-modal="true" role="dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="modal-title" id="subject-modal-title">Subject Details</div>
-                <button class="modal-close">&times;</button>
+                <button class="modal-close" aria-label="Close">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
                     <label for="edit-subject-name" class="form-label">Subject Name</label>
                     <input type="text" id="edit-subject-name" class="form-control">
                 </div>
-                <div class="card">
+                <div class="card" style="box-shadow:none; border:none;">
                     <div class="card-header">
                         <div class="card-title">Chapters</div>
                         <button id="add-chapter-btn" class="btn btn-sm">Add Chapter</button>
                     </div>
                     <div class="card-body">
-                        <ul class="list" id="chapters-list">
-                        </ul>
+                        <ul class="list" id="chapters-list"></ul>
                     </div>
                 </div>
             </div>
@@ -171,25 +281,24 @@
     </div>
 
     <!-- Chapter Modal -->
-    <div class="modal" id="chapter-modal">
+    <div class="modal" id="chapter-modal" aria-modal="true" role="dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="modal-title" id="chapter-modal-title">Chapter Details</div>
-                <button class="modal-close">&times;</button>
+                <button class="modal-close" aria-label="Close">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
                     <label for="edit-chapter-name" class="form-label">Chapter Name</label>
                     <input type="text" id="edit-chapter-name" class="form-control">
                 </div>
-                <div class="card">
+                <div class="card" style="box-shadow:none; border:none;">
                     <div class="card-header">
                         <div class="card-title">Lessons</div>
                         <button id="add-lesson-btn" class="btn btn-sm">Add Lesson</button>
                     </div>
                     <div class="card-body">
-                        <ul class="list" id="lessons-list">
-                        </ul>
+                        <ul class="list" id="lessons-list"></ul>
                     </div>
                 </div>
             </div>
@@ -201,11 +310,11 @@
     </div>
 
     <!-- Lesson Modal -->
-    <div class="modal" id="lesson-modal">
+    <div class="modal" id="lesson-modal" aria-modal="true" role="dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="modal-title" id="lesson-modal-title">Lesson Details</div>
-                <button class="modal-close">&times;</button>
+                <button class="modal-close" aria-label="Close">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
@@ -226,6 +335,40 @@
             <div class="modal-footer">
                 <button class="btn btn-outline" id="cancel-lesson-edit">Cancel</button>
                 <button class="btn" id="save-lesson-btn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Goal Modal -->
+    <div class="modal" id="edit-goal-modal" aria-modal="true" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Edit Goal</div>
+                <button class="modal-close" aria-label="Close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="edit-goal-title" class="form-label">Goal Title</label>
+                    <input type="text" id="edit-goal-title" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="edit-goal-subject" class="form-label">Subject</label>
+                    <select id="edit-goal-subject" class="select-control">
+                        <option value="">Select Subject</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit-goal-quantity" class="form-label">Quantity</label>
+                    <input type="number" id="edit-goal-quantity" class="form-control" min="1" value="1">
+                </div>
+                <div class="form-group">
+                    <label for="edit-goal-notes" class="form-label">Notes (optional)</label>
+                    <textarea id="edit-goal-notes" class="notes-editor" placeholder="Add notes for this goal..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancel-edit-goal">Cancel</button>
+                <button class="btn" id="save-edit-goal">Save</button>
             </div>
         </div>
     </div>
