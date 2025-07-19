@@ -397,6 +397,10 @@ const render = {
                             render.renderSubjectsList();
                             render.updateProgressTab();
                             render.renderGoalsList();
+                            // Update subject modal if open
+                            if (state.currentSubjectId) {
+                                render.renderSubjectModal(state.currentSubjectId);
+                            }
                             helpers.showToast('Chapter deleted successfully');
                         }
                     }
@@ -472,6 +476,10 @@ const render = {
                                 render.renderSubjectsList();
                                 render.updateProgressTab();
                                 render.renderGoalsList();
+                                // Update subject modal if open
+                                if (state.currentSubjectId) {
+                                    render.renderSubjectModal(state.currentSubjectId);
+                                }
                                 helpers.showToast('Lesson deleted successfully');
                             }
                         }
@@ -744,6 +752,7 @@ const render = {
                     }
                     helpers.saveToLocalStorage();
                     render.renderGoalsList();
+                    render.renderDetailedGoalProgress();
                 }
             });
         });
@@ -1171,6 +1180,10 @@ const controllers = {
             render.renderChapterModal(state.currentSubjectId, state.currentChapterId);
             render.renderSubjectsList();
             render.updateProgressTab();
+            // Add this line to update the subject modal if it's open
+            if (state.currentSubjectId) {
+                render.renderSubjectModal(state.currentSubjectId);
+            }
             controllers.closeLessonModal();
             helpers.showToast('Lesson updated successfully');
         });
